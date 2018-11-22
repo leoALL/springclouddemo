@@ -12,6 +12,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.concurrent.TimeUnit;
 
 public class ObserveImpl {
     /** logger */
@@ -20,8 +21,8 @@ public class ObserveImpl {
     private void test() throws Exception{
         String filePath = "D:\\test1";
         FileFilter filter=FileFilterUtils.and(new MyFileFilter());
-        FileAlterationObserver filealtertionObserver=new FileAlterationObserver(filePath, filter);
-        filealtertionObserver.addListener(new FileAlterationListenerAdaptor() {
+        FileAlterationObserver observer=new FileAlterationObserver(filePath, filter);
+        observer.addListener(new FileAlterationListenerAdaptor() {
 
             @Override
             public void onDirectoryCreate(File directory) {
@@ -60,8 +61,9 @@ public class ObserveImpl {
             }
         });
 
-        FileAlterationMonitor fileAlterationMonitor = new FileAlterationMonitor();
-        fileAlterationMonitor.addObserver(filealtertionObserver);
+        // 轮询时间修改为5秒
+        long interval = TimeUnit.SECONDS.toMillis(1);
+        FileAlterationMonitor fileAlterationMonitor = new FileAlterationMonitor(interval,observer);
         fileAlterationMonitor.start();
     }
 
